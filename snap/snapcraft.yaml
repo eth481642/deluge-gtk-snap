@@ -1,0 +1,48 @@
+name: deluge
+version: 2.1.1
+title: Deluge
+summary: Deluge
+description: Deluge Torrent Client
+license: GPL-3.0+
+
+base: core22
+grade: stable
+confinement: strict
+
+parts:
+  deluge:
+    plugin: python
+    source: git://deluge-torrent.org/deluge.git
+    source-tag: "deluge-2.1.1"
+    # WORKAROUND: The python plugin have problems with latest gnome extensions
+    build-environment:
+      - PATH: ${CRAFT_PART_INSTALL}/bin:${PATH}
+      - PYTHONPATH: ""
+    stage-packages:
+      - python3-libtorrent
+      - python3-geoip
+    prime:
+      - bin/deluge-gtk
+      - lib*
+      - usr
+      - share
+      - -include
+      - -share/man
+      - -pyvenv.cfg
+      - -usr/share/doc
+
+
+apps:
+  deluge:
+    command: bin/deluge-gtk
+    extensions: [gnome]
+    # WORKAROUND: Make python to search freshly installed modules inside our snap. Otherwise it will search modules inside gnome snap and fail
+    environment:
+      PYTHONPATH: ${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages
+    plugs:
+      - audio-playback
+      - home
+      - network
+      - network-bind
+      - network-status
+      - removable-media
